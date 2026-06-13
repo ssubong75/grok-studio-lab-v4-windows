@@ -1,0 +1,368 @@
+:root {
+  color-scheme: dark;
+  --editor-bar-height: 68px;
+  --editor-lift: 64px;
+  --line: rgb(255 255 255 / 0.12);
+  --panel: #151719;
+  --text: #f4f7f7;
+  --muted: #9ca4a8;
+  --accent: #fbad2e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #08090a;
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.editor-toolbar {
+  position: fixed;
+  z-index: 2147483647;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: minmax(190px, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  width: 100%;
+  height: var(--editor-bar-height);
+  padding: 0 20px;
+  border-bottom: 1px solid var(--line);
+  background: #0d0f10;
+  opacity: 1;
+  visibility: visible;
+}
+
+.editor-title,
+.editor-actions {
+  display: flex;
+  align-items: center;
+}
+
+.editor-title {
+  position: absolute;
+  left: 64px;
+  justify-content: center;
+  width: 248px;
+  pointer-events: none;
+}
+
+.editor-title strong {
+  color: var(--accent);
+  font-size: 24px;
+  font-weight: 850;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.editor-actions {
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+#editorStatus {
+  max-width: 220px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#editorStatus.error {
+  color: #ff9191;
+}
+
+.secondary-button,
+.save-button {
+  min-height: 34px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.save-button {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #111;
+}
+
+.save-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+#imageEditor {
+  width: 100%;
+  height: calc(100% - var(--editor-bar-height));
+  margin-top: var(--editor-bar-height);
+}
+
+#imageEditor .tui-image-editor-container,
+#imageEditor .tui-image-editor-main {
+  background-color: #08090a !important;
+}
+
+#imageEditor .tui-image-editor-main {
+  transform: translateY(calc(-1 * var(--editor-lift)));
+}
+
+#imageEditor .tui-image-editor-menu {
+  transform: translateY(calc(-1 * var(--editor-lift)));
+}
+
+#imageEditor .tui-image-editor-help-menu.right {
+  transform: translateY(calc(-50% - var(--editor-lift))) !important;
+}
+
+#imageEditor .tui-image-editor-header {
+  display: none;
+}
+
+#imageEditor .tui-image-editor-menu {
+  background-color: #111315 !important;
+}
+
+#imageEditor .tui-image-editor-submenu {
+  background-color: #171a1d !important;
+}
+
+#imageEditor .tui-image-editor-menu > .tui-image-editor-item.active,
+#imageEditor .tui-image-editor-help-menu > .tui-image-editor-item.active {
+  background-color: transparent !important;
+}
+
+#imageEditor .tui-image-editor-menu > .tui-image-editor-item.active svg > use.active {
+  display: block !important;
+}
+
+#imageEditor .tui-image-editor-menu > .tui-image-editor-item.active svg > use.normal {
+  display: none !important;
+}
+
+#imageEditor .tie-crop-preset-button {
+  display: none !important;
+}
+
+#imageEditor .tui-image-editor-menu-crop .tui-image-editor-partition.only-left-right {
+  display: none;
+}
+
+#imageEditor .custom-crop-options,
+#imageEditor .custom-font-options {
+  display: block !important;
+  width: 100%;
+  margin-top: 0 !important;
+  padding: 0 18px;
+}
+
+#imageEditor .custom-crop-options {
+  position: relative;
+  top: -28px;
+  padding-top: 12px;
+  padding-bottom: 13px;
+}
+
+#imageEditor .custom-crop-options::after,
+#imageEditor .custom-font-options::after {
+  position: absolute;
+  left: 50%;
+  width: 75%;
+  height: 1px;
+  background: #3c3c3c;
+  content: "";
+  transform: translateX(-50%);
+}
+
+#imageEditor .custom-crop-options::after {
+  bottom: -23px;
+}
+
+#imageEditor .custom-font-options {
+  position: relative;
+  top: -28px;
+  width: 75%;
+  margin-right: auto !important;
+  margin-left: auto !important;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+#imageEditor .custom-font-options::after {
+  bottom: -23px;
+  width: 100%;
+}
+
+.crop-ratios {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px 8px;
+  width: 100%;
+}
+
+.crop-ratios button {
+  display: grid;
+  gap: 6px;
+  place-items: center;
+  min-width: 0;
+  min-height: 56px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #8f969a;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.crop-ratios button::before {
+  content: "";
+  display: block;
+  width: 26px;
+  height: 20px;
+  border: 2px solid currentColor;
+  border-top-width: 1px;
+  border-left-width: 1px;
+  box-shadow:
+    6px 5px 0 -5px #171a1d,
+    6px 5px 0 -3px currentColor;
+}
+
+.crop-ratios button:hover,
+.crop-ratios button.active {
+  color: var(--accent);
+}
+
+.font-control {
+  display: grid;
+  gap: 7px;
+  width: 100%;
+  padding: 0 0 16px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.font-control select {
+  width: 100%;
+  min-height: 34px;
+  padding: 0 30px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+}
+
+#imageEditor .tui-image-editor-menu-text .tui-image-editor-submenu-item {
+  padding-top: 12px;
+}
+
+#imageEditor .tui-image-editor-menu-text .tui-image-editor-submenu-item > li:not(.custom-font-options) {
+  margin-top: 13px;
+}
+
+#imageEditor .tui-image-editor-menu-text .tie-text-effect-button {
+  margin-top: 23px;
+}
+
+#imageEditor .tui-image-editor-menu-crop .tie-crop-button.action {
+  margin-top: 16px;
+}
+
+.feather-control {
+  display: block;
+  gap: 8px;
+  width: 244px;
+  padding: 0;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.feather-label {
+  display: block;
+  width: 75%;
+  margin: 0 auto 7px;
+}
+
+.feather-inputs {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.feather-inputs input[type="range"] {
+  width: 136px !important;
+  min-width: 136px;
+  height: 2px;
+  margin: 0;
+  appearance: none;
+  border: 0;
+  outline: none;
+  background: #666;
+}
+
+.feather-inputs input[type="range"]::-webkit-slider-thumb {
+  width: 12px;
+  height: 12px;
+  appearance: none;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.feather-inputs input[type="number"] {
+  width: 40px !important;
+  min-width: 40px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid #454545;
+  border-radius: 2px;
+  outline: none;
+  background: #1c1c1c;
+  color: #fff;
+  font-size: 11px;
+  text-align: center;
+}
+
+.feather-control.is-disabled {
+  opacity: 0.38;
+}
+
+#imageEditor .custom-feather-options {
+  display: block;
+  width: 244px;
+  margin-top: 15px;
+}
+
+#imageEditor .tui-image-editor-submenu .tui-image-editor-button:hover,
+#imageEditor .tui-image-editor-submenu .tui-image-editor-button.active,
+#imageEditor .tui-image-editor-submenu .tui-image-editor-button.active label,
+#imageEditor .tui-image-editor-submenu .tui-image-editor-button:hover label {
+  color: var(--accent) !important;
+}
