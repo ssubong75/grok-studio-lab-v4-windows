@@ -1619,12 +1619,8 @@ function cardActionsHtml(item) {
       : `<button type="button" disabled>No file</button>`;
     return `<div class="card-actions">${extend}${copy}</div>`;
   }
-  const move = !itemGalleryFolderId(item)
-    ? `<button class="move-card-btn prompt-move-button" type="button" data-id="${escapeHtml(item.id)}">Move</button>`
-    : "";
-  return `<div class="card-actions prompt-card-actions${move ? " has-move" : ""}">
+  return `<div class="card-actions prompt-card-actions">
     <button class="copy-prompt-btn prompt-copy-button" type="button" data-copy="${escapeHtml(item.prompt || "")}">Copy</button>
-    ${move}
     <button class="delete-card-btn prompt-delete-button" type="button" data-id="${escapeHtml(item.id)}">Delete</button>
   </div>`;
 }
@@ -1821,7 +1817,7 @@ function renderDetail() {
     ? videoPlayerHtml(displayItem.local_url, "Video", { compact: false, extraClass: "detail-video-player" })
     : `<img class="detail-image" src="${escapeHtml(displayItem.local_url)}" alt="${escapeHtml(displayItem.prompt || displayItem.title || "Image")}" draggable="false" />`;
   const media = visualJob ? detailGenerationMediaHtml(visualJob, displayItem) : regularMedia;
-  const editAction = ["image", "video"].includes(displayItem.type) && !visualJob && item.source !== "upload-card"
+  const editAction = ["image", "video"].includes(displayItem.type) && !visualJob
     ? '<button class="detail-action edit-detail" type="button" aria-label="Edit image"><span class="detail-edit-glyph" aria-hidden="true">e</span></button>'
     : "";
   els.detailScreen.innerHTML = `

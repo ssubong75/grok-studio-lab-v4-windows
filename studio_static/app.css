@@ -4190,7 +4190,7 @@ video.detail-generation-media {
 .detail-edit-glyph {
   display: block;
   font-family: "Arial Rounded MT Bold", Arial, sans-serif;
-  font-size: 22px;
+  font-size: 26.4px;
   font-style: normal;
   font-weight: 700;
   line-height: 1;
@@ -5076,16 +5076,14 @@ html.platform-windows .detail-video-player .video-volume-slider::-webkit-slider-
 }
 
 .rename-folder-button {
-  color: var(--folder-rename);
+  color: #d7ff66;
 }
 
 .delete-folder-button {
   color: var(--folder-delete);
 }
 
-.make-folder-button:hover,
-.rename-folder-button:hover,
-.delete-folder-button:hover {
+.make-folder-button:hover {
   border-color: #4a5258;
   background: var(--panel-2);
 }
@@ -5095,11 +5093,15 @@ html.platform-windows .detail-video-player .video-volume-slider::-webkit-slider-
 }
 
 .rename-folder-button:hover {
-  color: var(--folder-rename-hover);
+  border-color: var(--line);
+  background: var(--panel);
+  color: #d7ff66;
 }
 
 .delete-folder-button:hover {
-  color: var(--folder-delete-hover);
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--folder-delete);
 }
 
 .folder-gallery-layout {
@@ -5526,11 +5528,13 @@ html.platform-windows .detail-video-player .video-volume-slider::-webkit-slider-
 }
 
 .gallery-action-buttons .gallery-action-rename {
-  color: var(--folder-rename);
+  color: #d7ff66;
 }
 
 .gallery-action-buttons .gallery-action-rename:hover {
-  color: var(--folder-rename-hover);
+  border-color: var(--line);
+  background: var(--panel);
+  color: #d7ff66;
 }
 
 .gallery-action-buttons .gallery-action-delete {
@@ -5538,5 +5542,7 @@ html.platform-windows .detail-video-player .video-volume-slider::-webkit-slider-
 }
 
 .gallery-action-buttons .gallery-action-delete:hover {
-  color: var(--folder-delete-hover);
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--folder-delete);
 }

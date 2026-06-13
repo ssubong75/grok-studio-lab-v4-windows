@@ -1939,7 +1939,25 @@ class StudioApp:
     def save_image_edit(self, payload: dict[str, Any]) -> dict[str, Any]:
         item_id = require_text(payload, "item_id")
         image_data = require_text(payload, "image")
-        source = self.library.get_item(item_id)
+        if item_id.startswith("upload-card:"):
+            upload_id = item_id.removeprefix("upload-card:")
+            upload = next(
+                (candidate for candidate in self.list_uploaded_images() if candidate.get("id") == upload_id),
+                None,
+            )
+            if not upload:
+                raise StudioError("Uploaded image not found.", 404)
+            source = {
+                **upload,
+                "id": item_id,
+                "type": "image",
+                "mode": "upload",
+                "prompt": "",
+                "tags": [],
+                "metadata": {"gallery_folder_id": upload.get("gallery_folder_id") or None},
+            }
+        else:
+            source = self.library.get_item(item_id)
         if source.get("type") not in {"image", "video"}:
             raise StudioError("Only Library images and video source images can be edited.")
         source_url = str(payload.get("source_url") or "").strip()
