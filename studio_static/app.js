@@ -2174,7 +2174,11 @@ async function deleteDetailItem(item, displayItem = item) {
   const remaining = Array.from(
     new Map([...relatedRemaining, ...allRemaining].map((candidate) => [candidate.id, candidate])).values(),
   );
-  const ok = window.confirm("Delete this local item?");
+  const ok = await openGalleryActionDialog({
+    title: "Delete item",
+    message: "Delete this local item?",
+    confirmLabel: "Delete",
+  });
   if (!ok) return;
   if (target.source === "upload-card") {
     const upload = state.uploads.find((candidate) => candidate.id === target.uploadId);
@@ -3204,13 +3208,11 @@ async function deleteSelectedItems() {
 
 async function deleteSingleGalleryItem(item) {
   if (!item?.id) return;
-  const ok = item.type === "prompt"
-    ? await openGalleryActionDialog({
-      title: "Delete Prompt",
-      message: "Delete this prompt?",
-      confirmLabel: "Delete",
-    })
-    : window.confirm("Delete this local item?");
+  const ok = await openGalleryActionDialog({
+    title: item.type === "prompt" ? "Delete Prompt" : "Delete item",
+    message: item.type === "prompt" ? "Delete this prompt?" : "Delete this local item?",
+    confirmLabel: "Delete",
+  });
   if (!ok) return;
   if (item.source === "upload-card") {
     const upload = state.uploads.find((candidate) => candidate.id === item.uploadId);
