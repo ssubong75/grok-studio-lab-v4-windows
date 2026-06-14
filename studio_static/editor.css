@@ -291,10 +291,12 @@ button {
   margin-top: 16px;
 }
 
-.feather-control {
+.feather-control,
+.custom-range-control {
   display: block;
-  gap: 8px;
-  width: 244px;
+  width: 75%;
+  margin-right: auto !important;
+  margin-left: auto !important;
   padding: 0;
   color: #fff;
   font-size: 11px;
@@ -302,23 +304,26 @@ button {
   text-align: left;
 }
 
-.feather-label {
+.feather-label,
+.custom-range-label {
   display: block;
-  width: 75%;
-  margin: 0 auto 7px;
+  width: 100%;
+  margin: 0 0 7px;
 }
 
-.feather-inputs {
-  display: flex;
-  gap: 4px;
+.feather-inputs,
+.custom-range-inputs {
+  display: grid;
+  grid-template-columns: 136px 40px;
+  gap: 8px;
   align-items: center;
-  justify-content: center;
   width: 100%;
 }
 
-.feather-inputs input[type="range"] {
-  width: 136px !important;
-  min-width: 136px;
+.feather-inputs input[type="range"],
+.custom-range-inputs input[type="range"] {
+  width: 100% !important;
+  min-width: 0;
   height: 2px;
   margin: 0;
   appearance: none;
@@ -327,7 +332,8 @@ button {
   background: #666;
 }
 
-.feather-inputs input[type="range"]::-webkit-slider-thumb {
+.feather-inputs input[type="range"]::-webkit-slider-thumb,
+.custom-range-inputs input[type="range"]::-webkit-slider-thumb {
   width: 12px;
   height: 12px;
   appearance: none;
@@ -336,7 +342,8 @@ button {
   background: #fff;
 }
 
-.feather-inputs input[type="number"] {
+.feather-inputs input[type="number"],
+.custom-range-inputs input[type="number"] {
   width: 40px !important;
   min-width: 40px;
   height: 24px;
@@ -357,7 +364,19 @@ button {
 #imageEditor .custom-feather-options {
   display: block;
   width: 244px;
+  margin-left: 4px !important;
   margin-top: 15px;
+}
+
+#imageEditor .custom-opacity-options {
+  display: block;
+  width: 244px;
+  margin-left: 4px !important;
+  margin-top: 15px;
+}
+
+#imageEditor .tui-image-editor-menu-shape .custom-opacity-options {
+  margin-top: 18px;
 }
 
 #imageEditor .tui-image-editor-submenu .tui-image-editor-button:hover,
@@ -365,4 +384,53 @@ button {
 #imageEditor .tui-image-editor-submenu .tui-image-editor-button.active label,
 #imageEditor .tui-image-editor-submenu .tui-image-editor-button:hover label {
   color: var(--accent) !important;
+}
+
+#imageEditor .tui-image-editor-menu-filter .tui-image-editor-checkbox input + span::before {
+  background-color: #9ca4a8 !important;
+  background-image: none !important;
+}
+
+#imageEditor .tui-image-editor-menu-filter .tui-image-editor-checkbox input[type="checkbox"]:checked + span::before {
+  background-color: #9ca4a8 !important;
+  background-image: none !important;
+  color: #fff;
+  content: "\2713";
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 14px;
+}
+
+#imageEditor .tui-image-editor-help-menu .tie-panel-history {
+  border: 1px solid #3c4245 !important;
+  background-color: #171a1d !important;
+  color: #b8c0c4 !important;
+}
+
+#imageEditor .tui-image-editor-help-menu .tie-panel-history .history-list .history-item {
+  color: #b8c0c4 !important;
+}
+
+#imageEditor .tui-image-editor-help-menu .tie-panel-history .history-list .history-item:hover,
+#imageEditor .tui-image-editor-help-menu .tie-panel-history .history-list .history-item.selected-item {
+  background-color: #2b3033 !important;
+  color: #f4f7f7 !important;
+}
+
+#imageEditor .tui-image-editor-help-menu .tie-panel-history .history-list .history-item.disabled-item {
+  color: #737c80 !important;
+}
+
+#imageEditor .tui-image-editor-help-menu .tie-panel-history .history-list .history-item svg,
+#imageEditor .tui-image-editor-help-menu .tie-panel-history .history-list .history-item svg use {
+  fill: #aeb7bb !important;
+  stroke: #aeb7bb !important;
+}
+
+#imageEditor .tui-image-editor-help-menu.right .opened .tie-panel-history::before {
+  border-left-color: #171a1d !important;
+}
+
+#imageEditor .tui-image-editor-help-menu .tie-panel-history .history-list {
+  scrollbar-color: #596166 #171a1d;
 }

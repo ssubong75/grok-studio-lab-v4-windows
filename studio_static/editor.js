@@ -20,10 +20,20 @@ const els = {
 let imageEditor = null;
 let selectedTextId = null;
 let selectedShapeId = null;
+let selectedObjectId = null;
+let selectedObjectMenu = "";
 let pendingFont = "";
 let originalAspect = 1;
 let wheelZoomLevel = 1;
 let lastWheelZoomAt = 0;
+const opacityControls = new Map();
+const objectOpacityMenus = new Map();
+const opacityValues = {
+  draw: 100,
+  shape: 100,
+  icon: 100,
+  text: 100,
+};
 
 function setStatus(message, kind = "") {
   els.status.textContent = message || "";
@@ -59,6 +69,38 @@ function blackTheme() {
   };
 }
 
+function makeOpacityControl(menuName) {
+  const host = document.createElement("li");
+  const control = document.createElement("div");
+  const label = document.createElement("span");
+  const inputs = document.createElement("span");
+  const range = document.createElement("input");
+  const value = document.createElement("input");
+
+  host.className = "custom-opacity-options tui-image-editor-newline";
+  control.className = "custom-range-control opacity-control";
+  label.className = "custom-range-label";
+  label.textContent = "Opacity";
+  inputs.className = "custom-range-inputs";
+  range.type = "range";
+  range.min = "0";
+  range.max = "100";
+  range.step = "1";
+  range.value = "100";
+  range.setAttribute("aria-label", `${menuName} opacity`);
+  value.type = "number";
+  value.min = "0";
+  value.max = "100";
+  value.step = "1";
+  value.value = "100";
+  value.setAttribute("aria-label", `${menuName} opacity value`);
+  inputs.append(range, value);
+  control.append(label, inputs);
+  host.appendChild(control);
+  opacityControls.set(menuName, { host, range, value });
+  return host;
+}
+
 function installCustomOptionPanels() {
   const cropList = document.querySelector(".tui-image-editor-menu-crop .tui-image-editor-submenu-item");
   const textList = document.querySelector(".tui-image-editor-menu-text .tui-image-editor-submenu-item");
@@ -81,6 +123,10 @@ function installCustomOptionPanels() {
     host.appendChild(els.featherControl);
     shapeList.appendChild(host);
   }
+  ["draw", "shape", "icon", "text"].forEach((menuName) => {
+    const list = document.querySelector(`.tui-image-editor-menu-${menuName} .tui-image-editor-submenu-item`);
+    if (list) list.appendChild(makeOpacityControl(menuName));
+  });
 }
 
 function setFeatherControl(id = null) {
@@ -107,6 +153,55 @@ function applyFeather(rawValue) {
   els.featherRange.value = String(value);
   els.featherValue.value = String(value);
   imageEditor.setObjectPropertiesQuietly(selectedShapeId, { rx: value, ry: value });
+}
+
+function activeOpacityMenu() {
+  const main = document.querySelector(".tui-image-editor-main");
+  return ["draw", "shape", "icon", "text"]
+    .find((menuName) => main?.classList.contains(`tui-image-editor-menu-${menuName}`)) || "";
+}
+
+function opacityMenuForType(rawType) {
+  const type = String(rawType || "").toLowerCase();
+  if (type === "path" || type === "line") return "draw";
+  if (["rect", "circle", "triangle"].includes(type)) return "shape";
+  if (type.includes("text")) return "text";
+  if (type === "icon" || type === "path-group") return "icon";
+  return "";
+}
+
+function setOpacityControl(menuName, rawValue) {
+  const control = opacityControls.get(menuName);
+  if (!control) return;
+  const value = Math.min(100, Math.max(0, Math.round(Number(rawValue) || 0)));
+  opacityValues[menuName] = value;
+  control.range.value = String(value);
+  control.value.value = String(value);
+}
+
+function syncSelectedOpacity(id, rawType = "") {
+  selectedObjectId = id || null;
+  selectedObjectMenu = objectOpacityMenus.get(selectedObjectId) || opacityMenuForType(rawType);
+  if (!selectedObjectId || !selectedObjectMenu) return;
+  window.setTimeout(() => {
+    const props = imageEditor.getObjectProperties(selectedObjectId, "opacity");
+    if (props) setOpacityControl(selectedObjectMenu, Number(props.opacity) * 100);
+  }, 0);
+}
+
+function applyOpacity(menuName, rawValue) {
+  setOpacityControl(menuName, rawValue);
+  if (!selectedObjectId || selectedObjectMenu !== menuName) return;
+  imageEditor.setObjectPropertiesQuietly(selectedObjectId, {
+    opacity: opacityValues[menuName] / 100,
+  });
+}
+
+function bindOpacityControls() {
+  opacityControls.forEach((control, menuName) => {
+    control.range.addEventListener("input", () => applyOpacity(menuName, control.range.value));
+    control.value.addEventListener("input", () => applyOpacity(menuName, control.value.value));
+  });
 }
 
 function bindWheelZoom() {
@@ -154,6 +249,7 @@ async function loadSystemFonts() {
 function bindEditorEvents() {
   imageEditor.on("objectActivated", (props) => {
     const type = String(props?.type || "").toLowerCase();
+    syncSelectedOpacity(props?.id, type);
     selectedTextId = type.includes("text") ? props.id : null;
     setFeatherControl(type === "rect" ? props.id : null);
     if (!selectedTextId) return;
@@ -165,6 +261,14 @@ function bindEditorEvents() {
 
   imageEditor.on("objectAdded", (props) => {
     const type = String(props?.type || "").toLowerCase();
+    const menuName = activeOpacityMenu();
+    if (props?.id && menuName) {
+      objectOpacityMenus.set(props.id, menuName);
+      imageEditor.setObjectPropertiesQuietly(props.id, {
+        opacity: opacityValues[menuName] / 100,
+      });
+    }
+    syncSelectedOpacity(props?.id, type);
     if (type === "rect") setFeatherControl(props.id);
     if (!type.includes("text") || !pendingFont) return;
     selectedTextId = props.id;
@@ -172,6 +276,8 @@ function bindEditorEvents() {
   });
 
   imageEditor.on("selectionCleared", () => {
+    selectedObjectId = null;
+    selectedObjectMenu = "";
     selectedTextId = null;
     setFeatherControl();
   });
@@ -206,6 +312,7 @@ function bindEditorEvents() {
 
   els.featherRange.addEventListener("input", () => applyFeather(els.featherRange.value));
   els.featherValue.addEventListener("input", () => applyFeather(els.featherValue.value));
+  bindOpacityControls();
   els.save.addEventListener("click", saveEdit);
   els.close.addEventListener("click", () => window.close());
 }

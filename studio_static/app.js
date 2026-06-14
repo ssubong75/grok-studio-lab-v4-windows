@@ -1771,7 +1771,9 @@ function resetComposerAfterDetail() {
 
 function closeDetail(options = {}) {
   const wasDetail = state.view === "detail";
-  const shouldGoBack = !options.fromHistory && history.state?.grokStudioView === "detail";
+  const shouldGoBack = !options.fromHistory
+    && !options.returnToWorkspace
+    && history.state?.grokStudioView === "detail";
   resetVideosIn(els.detailScreen);
   state.view = "gallery";
   state.detailItemId = "";
@@ -1793,6 +1795,10 @@ function closeDetail(options = {}) {
       detailHistoryUrl(),
     );
   }
+}
+
+function closeDetailToWorkspace() {
+  closeDetail({ returnToWorkspace: true });
 }
 
 function detailItem() {
@@ -1936,7 +1942,7 @@ function detailModelBadgeHtml(item) {
 
 function bindDetailEvents(item, displayItem = item) {
   els.detailScreen.querySelector(".detail-stage")?.addEventListener("click", handleDetailExtendBlankClick);
-  els.detailScreen.querySelector(".detail-back")?.addEventListener("click", closeDetail);
+  els.detailScreen.querySelector(".detail-back")?.addEventListener("click", closeDetailToWorkspace);
   els.detailScreen.querySelector(".detail-image")?.addEventListener("click", toggleDetailImageFullscreen);
   els.detailScreen.querySelectorAll(".detail-thumb").forEach((button) => {
     button.addEventListener("click", () => {
