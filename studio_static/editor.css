@@ -432,14 +432,9 @@ button {
 }
 
 #imageEditor .tui-image-editor-menu-filter .tui-image-editor-checkbox input[type="checkbox"]:checked + span::before {
-  background-color: #9ca4a8 !important;
+  background-color: var(--accent) !important;
   background-image: none !important;
-  color: var(--accent);
-  content: "\2713";
-  font-size: 14px;
-  font-weight: 900;
-  line-height: 13px;
-  -webkit-text-stroke: 0.4px var(--accent);
+  content: "" !important;
 }
 
 #imageEditor .tui-image-editor-help-menu .tie-panel-history {
