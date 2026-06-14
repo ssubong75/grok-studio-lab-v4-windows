@@ -34,6 +34,24 @@ const opacityValues = {
   icon: 100,
   text: 100,
 };
+const virtualRangeSteps = [
+  [".tie-rotate-range", 1 / 720],
+  [".tie-draw-range", 1 / 25],
+  [".tie-stroke-range", 1 / 298],
+  [".tie-text-range", 1 / 90],
+  [".tie-removewhite-distance-range", 0.1],
+  [".tie-brightness-range", 0.05],
+  [".tie-noise-range", 0.01],
+  [".tie-pixelate-range", 1 / 18],
+  [".tie-colorfilter-threshold-range", 0.1],
+  ["#tie-filter-tint-opacity", 0.1],
+];
+const virtualInputRangeSettings = [
+  [".tie-rotate-range", -360, 360, 1],
+  [".tie-draw-range", 5, 30, 1],
+  [".tie-stroke-range", 2, 300, 1],
+  [".tie-text-range", 10, 100, 1],
+];
 
 function setStatus(message, kind = "") {
   els.status.textContent = message || "";
@@ -101,6 +119,21 @@ function makeOpacityControl(menuName) {
   return host;
 }
 
+function syncNativeRangeFill(range) {
+  if (!range) return;
+  const min = Number(range.min) || 0;
+  const max = Number(range.max) || 100;
+  const value = Number(range.value) || 0;
+  const percent = max === min ? 0 : ((value - min) / (max - min)) * 100;
+  range.style.setProperty("--range-fill", `${Math.min(100, Math.max(0, percent))}%`);
+}
+
+function normalizeEditorLabels() {
+  document.querySelectorAll(".tui-image-editor-menu-text label.range").forEach((label) => {
+    if (label.textContent.trim().toLowerCase() === "text size") label.textContent = "Text Size";
+  });
+}
+
 function installCustomOptionPanels() {
   const cropList = document.querySelector(".tui-image-editor-menu-crop .tui-image-editor-submenu-item");
   const textList = document.querySelector(".tui-image-editor-menu-text .tui-image-editor-submenu-item");
@@ -145,6 +178,7 @@ function setFeatherControl(id = null) {
     input.max = String(max);
     input.value = String(Math.min(value, max));
   });
+  syncNativeRangeFill(els.featherRange);
 }
 
 function applyFeather(rawValue) {
@@ -152,6 +186,7 @@ function applyFeather(rawValue) {
   const value = Math.max(0, Math.round(Number(rawValue) || 0));
   els.featherRange.value = String(value);
   els.featherValue.value = String(value);
+  syncNativeRangeFill(els.featherRange);
   imageEditor.setObjectPropertiesQuietly(selectedShapeId, { rx: value, ry: value });
 }
 
@@ -177,6 +212,7 @@ function setOpacityControl(menuName, rawValue) {
   opacityValues[menuName] = value;
   control.range.value = String(value);
   control.value.value = String(value);
+  syncNativeRangeFill(control.range);
 }
 
 function syncSelectedOpacity(id, rawType = "") {
@@ -201,7 +237,89 @@ function bindOpacityControls() {
   opacityControls.forEach((control, menuName) => {
     control.range.addEventListener("input", () => applyOpacity(menuName, control.range.value));
     control.value.addEventListener("input", () => applyOpacity(menuName, control.value.value));
+    syncNativeRangeFill(control.range);
   });
+}
+
+function adjustNativeRange(range, direction) {
+  if (!range || range.disabled) return false;
+  const min = Number(range.min) || 0;
+  const max = Number(range.max) || 100;
+  const step = Number(range.step) || 1;
+  const value = Number(range.value) || 0;
+  const next = Math.min(max, Math.max(min, value + direction * step));
+  if (next === value) return false;
+  range.value = String(next);
+  range.dispatchEvent(new Event("input", { bubbles: true }));
+  range.dispatchEvent(new Event("change", { bubbles: true }));
+  syncNativeRangeFill(range);
+  return true;
+}
+
+function virtualRangeStep(range) {
+  return virtualRangeSteps.find(([selector]) => range.matches(selector))?.[1] || 0.05;
+}
+
+function adjustVirtualRange(range, direction) {
+  const pointer = range?.querySelector(".tui-image-editor-virtual-range-pointer");
+  if (!pointer || range.classList.contains("tui-image-editor-disabled")) return false;
+  const input = range.closest(".tui-image-editor-range-wrap")
+    ?.querySelector(".tui-image-editor-range-value");
+  const setting = virtualInputRangeSettings.find(([selector]) => range.matches(selector));
+  if (input && setting) {
+    const [, min, max, step] = setting;
+    const value = Number(input.value) || 0;
+    const next = Math.min(max, Math.max(min, value + direction * step));
+    if (next === value) return false;
+    input.value = String(next);
+    input.dispatchEvent(new Event("blur"));
+    return true;
+  }
+  const rangeWidth = Math.max(1, range.getBoundingClientRect().width - pointer.getBoundingClientRect().width);
+  const delta = direction * Math.max(1.5, rangeWidth * virtualRangeStep(range));
+  const start = pointer.getBoundingClientRect().left + pointer.getBoundingClientRect().width / 2;
+  pointer.dispatchEvent(new MouseEvent("mousedown", {
+    bubbles: true,
+    buttons: 1,
+    clientX: start,
+    screenX: start,
+  }));
+  document.dispatchEvent(new MouseEvent("mousemove", {
+    bubbles: true,
+    buttons: 1,
+    clientX: start + delta,
+    screenX: start + delta,
+  }));
+  document.dispatchEvent(new MouseEvent("mouseup", {
+    bubbles: true,
+    clientX: start + delta,
+    screenX: start + delta,
+  }));
+  return true;
+}
+
+function bindWheelRangeControls() {
+  const allowedMenus = [
+    ".tui-image-editor-menu-rotate",
+    ".tui-image-editor-menu-draw",
+    ".tui-image-editor-menu-shape",
+    ".tui-image-editor-menu-icon",
+    ".tui-image-editor-menu-text",
+    ".tui-image-editor-menu-filter",
+  ].join(", ");
+  els.editor.addEventListener("wheel", (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target?.closest(allowedMenus)) return;
+    const direction = event.deltaY < 0 ? 1 : -1;
+    const customInputs = target.closest(".custom-range-inputs, .feather-inputs");
+    const nativeRange = customInputs?.querySelector('input[type="range"]');
+    const virtualRange = target.closest(".tui-image-editor-range")
+      || target.closest(".tui-image-editor-range-wrap")?.querySelector(".tui-image-editor-range");
+    const changed = nativeRange
+      ? adjustNativeRange(nativeRange, direction)
+      : adjustVirtualRange(virtualRange, direction);
+    if (changed) event.preventDefault();
+  }, { passive: false });
 }
 
 function bindWheelZoom() {
@@ -364,7 +482,9 @@ function init() {
     usageStatistics: false,
   });
   installCustomOptionPanels();
+  normalizeEditorLabels();
   bindEditorEvents();
+  bindWheelRangeControls();
   bindWheelZoom();
   setFeatherControl();
   loadSystemFonts();
