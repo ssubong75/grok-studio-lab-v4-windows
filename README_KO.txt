@@ -4,7 +4,7 @@ Grok Studio Lab - Windows 포터블 버전
 실행 방법
 ---------
 1. 압축파일 전체를 원하는 폴더에 풉니다.
-2. run_grok_studio_windows.bat 파일을 더블클릭합니다.
+2. run_grok_studio.bat 파일을 더블클릭합니다.
 3. 잠시 후 기본 브라우저에서 Grok Studio Lab이 열립니다.
 
 별도의 Python 설치는 필요하지 않습니다. python 폴더의 내장 Windows Python을 사용합니다.
@@ -12,13 +12,13 @@ Grok Studio Lab - Windows 포터블 버전
 문제 확인용 실행
 ---------------
 실행되지 않거나 오류를 확인해야 할 때는
-run_grok_studio_windows_console.bat 파일을 실행합니다.
+run_grok_studio_console.bat 파일을 실행합니다.
 
 숨김 실행 로그:
 grok_studio_data_v2\logs\grok_studio.log
 
 서버 종료:
-stop_grok_studio_windows.bat
+stop_grok_studio.bat
 
 라이브러리 폴더
 ---------------
